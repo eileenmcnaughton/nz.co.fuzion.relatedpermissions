@@ -1,18 +1,19 @@
 <?xml version="1.0"?>
 <extension key="nz.co.fuzion.relatedpermissions" type="module">
   <file>relatedpermissions</file>
-  <name>FIXME</name>
-  <description>FIXME</description>
-  <license>FIXME</license>
+  <name>Related Permissions Module</name>
+  <description>This makes the relationship permission tick work throughout civi/description>
+  <license>AGPL</license>
   <maintainer>
-    <author>FIXME</author>
-    <email>FIXME@example.com</email>
+    <author>Eileen McNaughton</author>
+    <email>eileen@fuzion.co.nz</email>
   </maintainer>
   <releaseDate>2012-11-05</releaseDate>
   <version>1.0</version>
-  <develStage>alpha</develStage>
+  <develStage>stable</develStage>
   <compatibility>
     <ver>4.2</ver>
+    <ver>4.3.alpha1</ver>
   </compatibility>
   <comments>This is a new, undeveloped module</comments>
   <civix>
