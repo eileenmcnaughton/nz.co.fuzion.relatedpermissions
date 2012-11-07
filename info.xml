@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <extension key="nz.co.fuzion.relatedpermissions" type="module">
-  <downloadUrl>http://github.com/downloads/eileenmcnaughton/nz.co.relatedpermissions/nz.co.fuzion.relatedpermissions.zip</downloadUrl>
+  <downloadUrl>http://github.com/eileenmcnaughton/nz.co.relatedpermissions/zipball/master<</downloadUrl>
   <file>relatedpermissions</file>
   <name>Related Permissions Module</name>
   <description>This makes the relationship permission tick work as a full ACL. In combination with 'access CiviCRM contacts' can be found in search etc</description>
