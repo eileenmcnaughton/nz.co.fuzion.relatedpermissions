@@ -2,7 +2,7 @@
 <extension key="nz.co.fuzion.relatedpermissions" type="module">
   <file>relatedpermissions</file>
   <name>Related Permissions Module</name>
-  <description>This makes the relationship permission tick work throughout civi/description>
+  <description>This makes the relationship permission tick work throughout civi</description>
   <license>AGPL</license>
   <maintainer>
     <author>Eileen McNaughton</author>
