@@ -79,10 +79,13 @@ function relatedpermissions_civicrm_aclWhereClause($type, &$tables, &$whereTable
   $tmpTableName = _relatedpermissions_get_permissionedtable($contactID);
 
   $tables ['$tmpTableName'] = $whereTables ['$tmpTableName'] =
-    "INNER JOIN $tmpTableName permrelationships
+    " LEFT JOIN $tmpTableName permrelationships
      ON (contact_a.id = permrelationships.contact_id)";
   if(empty($where)){
-    $where = " 1 ";
+    $where = " permrelationships.contact_id IS NOT NULL ";
+  }
+  else{
+    $where .= " AND permrelationships.contact_id IS NOT NULL ";
   }
 }
 /*
