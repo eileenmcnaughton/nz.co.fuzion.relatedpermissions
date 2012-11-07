@@ -89,36 +89,78 @@ function relatedpermissions_civicrm_aclWhereClause($type, &$tables, &$whereTable
   }
 }
 /*
- * Create temporary table of all permissioned contacts
+ * Create temporary table of all permissioned contacts.
+ * If the contacts are organisations then we want all contacts they have permission
+ * over. Note that in order to avoid ORs & unindexed fields in the ON clause we use several queries
  */
 function _relatedpermissions_get_permissionedtable($contactID) {
   $tmpTableName = 'myrelationships' . rand(10000, 100000);
+  $datekey=date('dhis');
+  $tmpTableSecondaryContacts = 'mysecondaryrelationships' . $datekey. rand(10000, 100000);
   $now = date('Y-m-d');
-
-  $sql = "CREATE TEMPORARY TABLE $tmpTableName
-    (
-    `contact_id` INT(10) NULL,
-    INDEX `contact_id` (`contact_id`)
-    )
-  ENGINE=HEAP";
+  $sql = "CREATE  TABLE $tmpTableName
+  (
+   `contact_id` INT(10) NULL DEFAULT NULL,
+   PRIMARY KEY (`contact_id`)
+  )";
+  CRM_Core_DAO::executeQuery($sql);
+  $sql = "CREATE TABLE $tmpTableSecondaryContacts
+  (
+   `contact_id` INT(10) NULL DEFAULT NULL,
+   PRIMARY KEY (`contact_id`)
+  )";
   CRM_Core_DAO::executeQuery($sql);
   $sql = "INSERT INTO $tmpTableName
     SELECT contact_id_a FROM civicrm_relationship
     WHERE contact_id_b = $contactID
     AND is_active = 1
-    AND (start_date IS NULL OR start_date > NOW() )
-    AND (end_date IS NULL OR end_date < NOW())
+    AND (start_date IS NULL OR start_date >= '{$now}' )
+    AND (end_date IS NULL OR end_date <= '{$now}')
     AND is_permission_b_a = 1
   ";
   CRM_Core_DAO::executeQuery($sql);
-  $sql = "INSERT INTO $tmpTableName
+
+  $sql = "REPLACE INTO $tmpTableName
     SELECT contact_id_b FROM civicrm_relationship
     WHERE contact_id_a = $contactID
     AND is_active = 1
-    AND (start_date IS NULL OR start_date > NOW() )
-    AND (end_date IS NULL OR end_date < NOW())
+    AND (start_date IS NULL OR start_date >= '{$now}' )
+    AND (end_date IS NULL OR end_date <= '{$now}')
     AND is_permission_a_b = 1
   ";
+    CRM_Core_DAO::executeQuery($sql);
+  /*
+  * Next we generate a table of the permissioned contacts permissioned contacts for Orgs & Households
+  */
+
+  $sql = "INSERT INTO $tmpTableSecondaryContacts
+    SELECT contact_id_b
+    FROM $tmpTableName tmp
+    LEFT JOIN civicrm_relationship r  ON tmp.contact_id = r.contact_id_a
+    INNER JOIN civicrm_contact c ON c.id = r.contact_id_a AND c.contact_type IN ('Household', 'Organization')
+    WHERE
+    r.is_active = 1
+    AND (start_date IS NULL OR start_date >= '{$now}' )
+    AND (end_date IS NULL OR end_date <= '{$now}')
+    AND is_permission_a_b = 1
+  ";
+  CRM_Core_DAO::executeQuery($sql);
+
+  $sql = "REPLACE INTO $tmpTableSecondaryContacts
+    SELECT contact_id_a
+    FROM $tmpTableName tmp
+    LEFT JOIN civicrm_relationship r ON tmp.contact_id = r.contact_id_b
+    INNER JOIN civicrm_contact c ON c.id = r.contact_id_b AND c.contact_type IN ('Household', 'Organization')
+    WHERE
+    r.is_active = 1
+    AND (start_date IS NULL OR start_date >= '{$now}' )
+    AND (end_date IS NULL OR end_date <= '{$now}')
+    AND is_permission_b_a = 1
+  ";
+  CRM_Core_DAO::executeQuery($sql);
+
+  $sql = "REPLACE INTO $tmpTableName
+    SELECT * FROM $tmpTableSecondaryContacts";
   CRM_Core_DAO::executeQuery($sql);
 
   return $tmpTableName;
