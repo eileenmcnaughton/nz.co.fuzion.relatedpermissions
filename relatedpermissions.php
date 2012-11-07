@@ -6,7 +6,6 @@ require_once 'relatedpermissions.civix.php';
  * Implementation of hook_civicrm_config
  */
 function relatedpermissions_civicrm_config(&$config) {
-  dpm("config");
   _relatedpermissions_civix_civicrm_config($config);
 }
 
@@ -74,57 +73,50 @@ function relatedpermissions_civicrm_managed(&$entities) {
  * specifically give permission to them
  */
 function relatedpermissions_civicrm_aclWhereClause($type, &$tables, &$whereTables, &$contactID, &$where) {
-dpm("here");
-  if (! $contactID) {
+  if (!$contactID) {
     return;
   }
-/*  $relationships = _relatedpermissions_get_permissionedrelatedcontacts( $contactID );
-  if(empty($relationships )){
-    return;
-  }
-  */
-  if(!empty($where)){
-    $clause[] = $where;
-  }
-  foreach ($relationships as $rel){
-  $tables ['civicrm_relationship_perm_a'] = $whereTables ['civicrm_relationship_perm_a'] =
-    "LEFT JOIN civicrm_relationship civicrm_relationship_perm_a}
-     ON (civicrm_relationship_perm_a.contact_id_a = {$contactID} AND abagroup{$rel['contact_id_b']}.contact_id_b = {$rel['contact_id_b']})
-";
-  $clause[] = "(abagroup{$rel['contact_id_b']}.start_date IS NULL OR abagroup{$rel['contact_id_b']}.start_date < NOW())
-    AND abagroup{$rel['contact_id_b']}.is_active = 1
-    AND (abagroup{$rel['contact_id_b']}.end_date IS NULL OR abagroup{$rel['contact_id_b']}.end_date > NOW())
-  ";
-  }
-  dpm($tables);
-  dpm($whereTables);
-  dpm($where);
-  $where = implode(' OR ', $clause);
- // return TRUE;
-}
+  $tmpTableName = _relatedpermissions_get_permissionedtable($contactID);
 
-/**
- * Implementation of hook_civicrm_config
+  $tables ['$tmpTableName'] = $whereTables ['$tmpTableName'] =
+    "INNER JOIN $tmpTableName permrelationships
+     ON (contact_a.id = permrelationships.contact_id)";
+  if(empty($where)){
+    $where = " 1 ";
+  }
+}
+/*
+ * Create temporary table of all permissioned contacts
  */
-function relatedpermissions_civicrm_buildForm($formName, &$form ) {
-  dpm("I ran");
-}
+function _relatedpermissions_get_permissionedtable($contactID) {
+  $tmpTableName = 'myrelationships' . rand(10000, 100000);
+  $now = date('Y-m-d');
 
+  $sql = "CREATE TEMPORARY TABLE $tmpTableName
+    (
+    `contact_id` INT(10) NULL,
+    INDEX `contact_id` (`contact_id`)
+    )
+  ENGINE=HEAP";
+  CRM_Core_DAO::executeQuery($sql);
+  $sql = "INSERT INTO $tmpTableName
+    SELECT contact_id_a FROM civicrm_relationship
+    WHERE contact_id_b = $contactID
+    AND is_active = 1
+    AND (start_date IS NULL OR start_date > NOW() )
+    AND (end_date IS NULL OR end_date < NOW())
+    AND is_permission_b_a = 1
+  ";
+  CRM_Core_DAO::executeQuery($sql);
+  $sql = "INSERT INTO $tmpTableName
+    SELECT contact_id_b FROM civicrm_relationship
+    WHERE contact_id_a = $contactID
+    AND is_active = 1
+    AND (start_date IS NULL OR start_date > NOW() )
+    AND (end_date IS NULL OR end_date < NOW())
+    AND is_permission_a_b = 1
+  ";
+  CRM_Core_DAO::executeQuery($sql);
 
-function _relatedpermissions_get_permissionedrelatedcontacts($contact_id) {
-  $params = array(
-      'contact_id_a' => $contact_id,
-      'version' => 3,
-      'relationship_type_id' => array('IN' => array(22,35)),
-      'is_active' => 1,
-      'sequential' => 1,
-      'filters' => array(
-          'is_current' => 1,
-      )
-  );
-
-  $relationships = civicrm_api( 'relationship', 'get', $params );
-  if (empty( $relationships ['is_error'] ) && $relationships ['count']) {
-    return $relationships ['values'];
-  }
+  return $tmpTableName;
 }
