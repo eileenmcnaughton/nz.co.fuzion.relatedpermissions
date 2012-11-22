@@ -4,6 +4,11 @@
   <file>relatedpermissions</file>
   <name>Related Permissions Module</name>
   <description>This makes the relationship permission tick work as a full ACL. In combination with access CiviCRM contacts can be found in search etc</description>
+  <urls>
+    <url desc="Main Extension Page">http://civicrm.org</url>
+    <url desc="Support">http://forum.civicrm.org</url>
+    <url desc="Licensing">http://civicrm.org/licensing</url>
+  </urls>
   <license>AGPL</license>
   <maintainer>
     <author>Eileen McNaughton</author>
