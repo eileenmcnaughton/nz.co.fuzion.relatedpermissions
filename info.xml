@@ -3,7 +3,7 @@
   <downloadUrl>http://github.com/eileenmcnaughton/nz.co.relatedpermissions/zipball/master</downloadUrl>
   <file>relatedpermissions</file>
   <name>Related Permissions Module</name>
-  <description>This makes the relationship permission tick work as a full ACL. In combination with 'access CiviCRM contacts' can be found in search etc</description>
+  <description>This makes the relationship permission tick work as a full ACL. In combination with access CiviCRM contacts can be found in search etc</description>
   <license>AGPL</license>
   <maintainer>
     <author>Eileen McNaughton</author>
@@ -16,7 +16,7 @@
     <ver>4.2</ver>
     <ver>4.3</ver>
   </compatibility>
-  <comments>This extensions makes the permission flag on a contact's relationship work as a true ACL. In core CiviCRM that flag only allows the user to see the contact's dashboard. However, in many cases it is a useful mechanism to give people permission to view contact records and search for contacts.</comments>
+  <comments>This extension makes the permission flag on a relationship work as a true ACL. In core CiviCRM that flag only allows the user to see the contact dashboard. However, in many cases it is a useful mechanism to give people permission to view contact records and search for contacts.</comments>
   <civix>
     <namespace>CRM/Relatedpermissions</namespace>
   </civix>
