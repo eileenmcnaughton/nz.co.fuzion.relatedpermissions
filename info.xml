@@ -20,6 +20,7 @@
   <compatibility>
     <ver>4.2</ver>
     <ver>4.3</ver>
+    <ver>4.4</ver>
   </compatibility>
   <comments>This extension makes the permission flag on a relationship work as a true ACL. In core CiviCRM that flag only allows the user to see the contact dashboard. However, in many cases it is a useful mechanism to give people permission to view contact records and search for contacts.</comments>
   <civix>
