@@ -114,8 +114,8 @@ function _relatedpermissions_get_permissionedtable($contactID) {
     SELECT contact_id_a FROM civicrm_relationship
     WHERE contact_id_b = $contactID
     AND is_active = 1
-    AND (start_date IS NULL OR start_date >= '{$now}' )
-    AND (end_date IS NULL OR end_date <= '{$now}')
+    AND (start_date IS NULL OR start_date <= '{$now}' )
+    AND (end_date IS NULL OR end_date >= '{$now}')
     AND is_permission_b_a = 1
   ";
   CRM_Core_DAO::executeQuery($sql);
@@ -124,8 +124,8 @@ function _relatedpermissions_get_permissionedtable($contactID) {
     SELECT contact_id_b FROM civicrm_relationship
     WHERE contact_id_a = $contactID
     AND is_active = 1
-    AND (start_date IS NULL OR start_date >= '{$now}' )
-    AND (end_date IS NULL OR end_date <= '{$now}')
+    AND (start_date IS NULL OR start_date <= '{$now}' )
+    AND (end_date IS NULL OR end_date >= '{$now}')
     AND is_permission_a_b = 1
   ";
     CRM_Core_DAO::executeQuery($sql);
@@ -140,8 +140,8 @@ function _relatedpermissions_get_permissionedtable($contactID) {
     INNER JOIN civicrm_contact c ON c.id = r.contact_id_a AND c.contact_type IN ('Household', 'Organization')
     WHERE
     r.is_active = 1
-    AND (start_date IS NULL OR start_date >= '{$now}' )
-    AND (end_date IS NULL OR end_date <= '{$now}')
+    AND (start_date IS NULL OR start_date <= '{$now}' )
+    AND (end_date IS NULL OR end_date >= '{$now}')
     AND is_permission_a_b = 1
   ";
   CRM_Core_DAO::executeQuery($sql);
@@ -153,8 +153,8 @@ function _relatedpermissions_get_permissionedtable($contactID) {
     INNER JOIN civicrm_contact c ON c.id = r.contact_id_b AND c.contact_type IN ('Household', 'Organization')
     WHERE
     r.is_active = 1
-    AND (start_date IS NULL OR start_date >= '{$now}' )
-    AND (end_date IS NULL OR end_date <= '{$now}')
+    AND (start_date IS NULL OR start_date <= '{$now}' )
+    AND (end_date IS NULL OR end_date >= '{$now}')
     AND is_permission_b_a = 1
   ";
   CRM_Core_DAO::executeQuery($sql);
