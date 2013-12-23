@@ -46,6 +46,18 @@ function relatedpermissions_civicrm_disable() {
   return _relatedpermissions_civix_civicrm_disable();
 }
 
+function relatedpermissions_civicrm_alterEntitySettingsFolders(&$folders) {
+  static $configured = FALSE;
+  if ($configured) return;
+  $configured = TRUE;
+
+  $extRoot = dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
+  $extDir = $extRoot . 'settings';
+  if(!in_array($extDir, $folders)){
+    $folders[] = $extDir;
+  }
+}
+
 /**
  * Implementation of hook_civicrm_upgrade
  *
@@ -98,13 +110,13 @@ function _relatedpermissions_get_permissionedtable($contactID) {
   $datekey=date('dhis');
   $tmpTableSecondaryContacts = 'mysecondaryrelationships' . $datekey. rand(10000, 100000);
   $now = date('Y-m-d');
-  $sql = "CREATE  TABLE $tmpTableName
+  $sql = "CREATE TEMPORARY TABLE $tmpTableName
   (
    `contact_id` INT(10) NULL DEFAULT NULL,
    PRIMARY KEY (`contact_id`)
   )";
   CRM_Core_DAO::executeQuery($sql);
-  $sql = "CREATE TABLE $tmpTableSecondaryContacts
+  $sql = "CREATE TEMPORARY TABLE $tmpTableSecondaryContacts
   (
    `contact_id` INT(10) NULL DEFAULT NULL,
    PRIMARY KEY (`contact_id`)
@@ -164,4 +176,61 @@ function _relatedpermissions_get_permissionedtable($contactID) {
   CRM_Core_DAO::executeQuery($sql);
 
   return $tmpTableName;
+}
+
+/**
+ * Set permissions if required
+ * @param unknown $a
+ * @param unknown $b
+ */
+function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) {
+  if($entity != 'Relationship') {
+    return;
+  }
+  $relationshipType = explode('_', $entityArray['relationship_type_id']);
+
+  if(_relatedpermissions_is_permission($relationshipType[0], 'a_b')) {
+    $entityArray['is_permission_a_b'] = TRUE;
+  }
+  if(_relatedpermissions_is_permission($relationshipType[0], 'b_a')) {
+    $entityArray['is_permission_b_a'] = TRUE;
+  }
+}
+
+/**
+ * Get permission for a given entity id in a given direction
+ * @param integer $entity_id
+ * @param string $direction
+ * @return Ambigous <null, array>
+ */
+function _relatedpermissions_is_permission($entity_id, $direction) {
+  static $settings = array();
+  if(!isset($settings[$entity_id])) {
+    $entity_settings = civicrm_api3('entity_setting', 'get', array(
+      'key' => 'nz.co.fuzion.relatedpermissions',
+      'entity_id' => $entity_id,
+      'entity_type' => 'relationship_type')
+    );
+    $settings[$entity_id] = $entity_settings['values'];
+  }
+  return CRM_Utils_Array::value('always_permission_' . $direction, $settings[$entity_id]);
+}
+
+/**
+ *
+ */
+function relatedpermissions_civicrm_postProcess( $formName, &$form ) {
+  if($formName != 'CRM_Event_Form_Registration_Confirm') {
+    return;
+  }
+
+  $participantID = $form->_values['participant']['id'];
+  $participantContactID = $form->_values['participant']['participant_contact_id'];
+  $registeringContact = $form->getContactID();
+  $cid = $form->_values['params'][$participantID]['contact_id'];
+  if($registeringContact != $participantContactID && $form->_values['params'][$participantID]['contact_id'] === '0') {
+    civicrm_api3('relationship', 'create', array(
+      'contact_id_a' => $registeringContact, 'contact_id_b' => $participantContactID, 'relationship_type_id' => 4)
+    );
+  }
 }
