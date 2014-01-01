@@ -215,22 +215,3 @@ function _relatedpermissions_is_permission($entity_id, $direction) {
   }
   return CRM_Utils_Array::value('always_permission_' . $direction, $settings[$entity_id]);
 }
-
-/**
- *
- */
-function relatedpermissions_civicrm_postProcess( $formName, &$form ) {
-  if($formName != 'CRM_Event_Form_Registration_Confirm') {
-    return;
-  }
-
-  $participantID = $form->_values['participant']['id'];
-  $participantContactID = $form->_values['participant']['participant_contact_id'];
-  $registeringContact = $form->getContactID();
-  $cid = $form->_values['params'][$participantID]['contact_id'];
-  if($registeringContact != $participantContactID && $form->_values['params'][$participantID]['contact_id'] === '0') {
-    civicrm_api3('relationship', 'create', array(
-      'contact_id_a' => $registeringContact, 'contact_id_b' => $participantContactID, 'relationship_type_id' => 4)
-    );
-  }
-}
