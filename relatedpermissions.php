@@ -184,7 +184,7 @@ function _relatedpermissions_get_permissionedtable($contactID) {
  * @param unknown $b
  */
 function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) {
-  if($entity != 'Relationship') {
+  if($entity != 'Relationship' || $op == 'delete') {
     return;
   }
   $relationshipType = explode('_', $entityArray['relationship_type_id']);
