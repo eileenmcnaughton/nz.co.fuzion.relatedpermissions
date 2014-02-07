@@ -211,7 +211,7 @@ function _relatedpermissions_is_permission($entity_id, $direction) {
       'entity_id' => $entity_id,
       'entity_type' => 'relationship_type')
     );
-    $settings[$entity_id] = $entity_settings['values'];
+    $settings = $entity_settings['values'][$entity_id];
   }
-  return CRM_Utils_Array::value('always_permission_' . $direction, $settings[$entity_id]);
+  return CRM_Utils_Array::value('always_permission_' . $direction, $settings);
 }
