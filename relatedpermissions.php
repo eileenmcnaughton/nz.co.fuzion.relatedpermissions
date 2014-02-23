@@ -97,7 +97,7 @@ function relatedpermissions_civicrm_aclWhereClause($type, &$tables, &$whereTable
     $where = " permrelationships.contact_id IS NOT NULL ";
   }
   else{
-    $where .= " AND permrelationships.contact_id IS NOT NULL ";
+    $where = '(' . $where . " OR permrelationships.contact_id IS NOT NULL " . ')';
   }
 }
 /*
