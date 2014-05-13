@@ -123,7 +123,7 @@ function _relatedpermissions_get_permissionedtable($contactID) {
   )";
   CRM_Core_DAO::executeQuery($sql);
   $sql = "INSERT INTO $tmpTableName
-    SELECT contact_id_a FROM civicrm_relationship
+    SELECT DISTINCT contact_id_a FROM civicrm_relationship
     WHERE contact_id_b = $contactID
     AND is_active = 1
     AND (start_date IS NULL OR start_date <= '{$now}' )
@@ -146,7 +146,7 @@ function _relatedpermissions_get_permissionedtable($contactID) {
   */
 
   $sql = "INSERT INTO $tmpTableSecondaryContacts
-    SELECT contact_id_b
+    SELECT DISTINCT contact_id_b
     FROM $tmpTableName tmp
     LEFT JOIN civicrm_relationship r  ON tmp.contact_id = r.contact_id_a
     INNER JOIN civicrm_contact c ON c.id = r.contact_id_a AND c.contact_type IN ('Household', 'Organization')
