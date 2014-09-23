@@ -100,28 +100,39 @@ function relatedpermissions_civicrm_aclWhereClause($type, &$tables, &$whereTable
     $where = '(' . $where . " OR permrelationships.contact_id IS NOT NULL " . ')';
   }
 }
-/*
+/**
  * Create temporary table of all permissioned contacts.
  * If the contacts are organisations then we want all contacts they have permission
  * over. Note that in order to avoid ORs & unindexed fields in the ON clause we use several queries
  */
 function _relatedpermissions_get_permissionedtable($contactID) {
-  $tmpTableName = 'myrelationships' . rand(10000, 100000);
-  $datekey=date('dhis');
-  $tmpTableSecondaryContacts = 'mysecondaryrelationships' . $datekey. rand(10000, 100000);
+  static $tempTables = array();
+  $dateKey=date('dhis');
+  if (!empty($tempTables[$contactID])) {
+    return $tempTables[$contactID]['permissioned_contacts'];
+  }
+  else {
+    $tmpTableName = 'my_relationships_' . $contactID . '_' . rand(10000, 100000);
+    $sql = "CREATE TEMPORARY TABLE $tmpTableName (
+     `contact_id` INT(10) NULL DEFAULT NULL,
+     PRIMARY KEY (`contact_id`)
+    )";
+
+    CRM_Core_DAO::executeQuery($sql);
+    $tmpTableSecondaryContacts = 'my_secondary_relationships' . $dateKey . rand(10000, 100000);
+    $sql = "CREATE TEMPORARY TABLE $tmpTableSecondaryContacts (
+     `contact_id` INT(10) NULL DEFAULT NULL,
+     PRIMARY KEY (`contact_id`),
+     `contact_type` VARCHAR(50) NULL DEFAULT NULL
+    )";
+
+    CRM_Core_DAO::executeQuery($sql);
+  }
+  $tempTables[$contactID]['permissioned_contacts'] = $tmpTableName;
+  $tempTables[$contactID]['permissioned_secondary_contacts'] = $tmpTableSecondaryContacts ;
+
   $now = date('Y-m-d');
-  $sql = "CREATE TEMPORARY TABLE $tmpTableName
-  (
-   `contact_id` INT(10) NULL DEFAULT NULL,
-   PRIMARY KEY (`contact_id`)
-  )";
-  CRM_Core_DAO::executeQuery($sql);
-  $sql = "CREATE TEMPORARY TABLE $tmpTableSecondaryContacts
-  (
-   `contact_id` INT(10) NULL DEFAULT NULL,
-   PRIMARY KEY (`contact_id`)
-  )";
-  CRM_Core_DAO::executeQuery($sql);
+
   $sql = "INSERT INTO $tmpTableName
     SELECT DISTINCT contact_id_a FROM civicrm_relationship
     WHERE contact_id_b = $contactID
@@ -130,6 +141,7 @@ function _relatedpermissions_get_permissionedtable($contactID) {
     AND (end_date IS NULL OR end_date >= '{$now}')
     AND is_permission_b_a = 1
   ";
+
   CRM_Core_DAO::executeQuery($sql);
 
   $sql = "REPLACE INTO $tmpTableName
@@ -140,42 +152,82 @@ function _relatedpermissions_get_permissionedtable($contactID) {
     AND (end_date IS NULL OR end_date >= '{$now}')
     AND is_permission_a_b = 1
   ";
+
     CRM_Core_DAO::executeQuery($sql);
   /*
   * Next we generate a table of the permissioned contacts permissioned contacts for Orgs & Households
   */
 
-  $sql = "INSERT INTO $tmpTableSecondaryContacts
-    SELECT DISTINCT contact_id_b
+  calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName, $now);
+
+  $sql = "REPLACE INTO $tmpTableName
+    SELECT contact_id FROM $tmpTableSecondaryContacts";
+  CRM_Core_DAO::executeQuery($sql);
+  try {
+    $secondDegreePerms = civicrm_api3('setting', 'getvalue', array('version' => 3, 'name' => 'secondDegRelPermissions', 'group' => 'core'));
+  }
+  catch (Exception $e) {
+    $secondDegreePerms = 0;
+  }
+
+  if ($secondDegreePerms) {
+    $continue = 1;
+    while ($continue > 0) {
+      calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName, $now);
+      $newPotentialPermissionInheritingContacts = CRM_Core_DAO::singleValueQuery("
+     SELECT count(*) FROM $tmpTableSecondaryContacts s
+     LEFT JOIN $tmpTableName m ON s.contact_id = m.contact_id
+     WHERE m.contact_id IS NULL AND s.contact_type IN ('Organization', 'Household')");
+      $sql = "REPLACE INTO $tmpTableName
+      SELECT contact_id FROM $tmpTableSecondaryContacts
+    ";
+
+    CRM_Core_DAO::executeQuery($sql);
+      //keep going as long as we are adding
+      //new contacts to our table
+      $continue = $newPotentialPermissionInheritingContacts;
+    }
+  }
+  return $tmpTableName;
+}
+
+/**
+ * @param $tmpTableSecondaryContacts
+ * @param $tmpTableName
+ * @param $now
+ */
+function calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName, $now) {
+  $sql = "REPLACE INTO $tmpTableSecondaryContacts
+    SELECT DISTINCT contact_id_b, contact_b.contact_type
     FROM $tmpTableName tmp
     LEFT JOIN civicrm_relationship r  ON tmp.contact_id = r.contact_id_a
     INNER JOIN civicrm_contact c ON c.id = r.contact_id_a AND c.contact_type IN ('Household', 'Organization')
+    INNER JOIN civicrm_contact contact_b ON contact_b.id = r.contact_id_b
     WHERE
     r.is_active = 1
     AND (start_date IS NULL OR start_date <= '{$now}' )
     AND (end_date IS NULL OR end_date >= '{$now}')
     AND is_permission_a_b = 1
+    AND c.is_deleted = 0
   ";
+
   CRM_Core_DAO::executeQuery($sql);
 
   $sql = "REPLACE INTO $tmpTableSecondaryContacts
-    SELECT contact_id_a
+    SELECT contact_id_a, contact_b.contact_type
     FROM $tmpTableName tmp
     LEFT JOIN civicrm_relationship r ON tmp.contact_id = r.contact_id_b
     INNER JOIN civicrm_contact c ON c.id = r.contact_id_b AND c.contact_type IN ('Household', 'Organization')
+    INNER JOIN civicrm_contact contact_b ON contact_b.id = r.contact_id_b
     WHERE
     r.is_active = 1
     AND (start_date IS NULL OR start_date <= '{$now}' )
     AND (end_date IS NULL OR end_date >= '{$now}')
     AND is_permission_b_a = 1
+    AND c.is_deleted = 0
   ";
-  CRM_Core_DAO::executeQuery($sql);
 
-  $sql = "REPLACE INTO $tmpTableName
-    SELECT * FROM $tmpTableSecondaryContacts";
   CRM_Core_DAO::executeQuery($sql);
-
-  return $tmpTableName;
 }
 
 /**
