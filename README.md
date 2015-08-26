@@ -2,7 +2,7 @@ nz.co.fuzion.relatedpermissions
 ===============================
 
 Empowers inherited permissions throughout Civi. Note that the latest version allows you to specify that certain relationships
-should alsways be permissioned BUT it is dependent on  https://github.com/eileenmcnaughton/nz.co.fuzion.entitysettings
+should alsways be permissioned BUT it is dependent on  https://github.com/eileenmcnaughton/nz.co.fuzion.entitysetting
 
 Because of the dependency the later version is not available for automated download
 You also need this commit (in 4.4.6)
