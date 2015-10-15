@@ -232,25 +232,35 @@ function calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName
 
 /**
  * Set permissions if required
- * @param unknown $a
- * @param unknown $b
+ *
+ * @param string operation
+ * @param object entity
+ * @param int entity ID
+ * @param array entity
  */
 function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) {
   if($entity != 'Relationship' || $op == 'delete') {
     return;
   }
-  $relationshipType = explode('_', $entityArray['relationship_type_id']);
 
-  if(_relatedpermissions_is_permission($relationshipType[0], 'a_b')) {
-    $entityArray['is_permission_a_b'] = TRUE;
-  }
-  if(_relatedpermissions_is_permission($relationshipType[0], 'b_a')) {
-    $entityArray['is_permission_b_a'] = TRUE;
+  if (isset($entityArray['relationship_type_id'])) {
+    $relationshipType = explode('_', $entityArray['relationship_type_id']);
+    $entity_id = $relationshipType[0];
+
+    if (is_numeric($entity_id)) {
+      if(_relatedpermissions_is_permission($entity_id, 'a_b')) {
+        $entityArray['is_permission_a_b'] = TRUE;
+      }
+      if(_relatedpermissions_is_permission($entity_id, 'b_a')) {
+        $entityArray['is_permission_b_a'] = TRUE;
+      }
+    }
   }
 }
 
 /**
- * Get permission for a given entity id in a given direction
+ * Get permission for a given entity id in a given direction.
+ *
  * @param integer $entity_id
  * @param string $direction
  * @return Ambigous <null, array>
