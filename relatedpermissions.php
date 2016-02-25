@@ -236,7 +236,7 @@ function calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName
  * @param unknown $b
  */
 function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) {
-  if($entity != 'Relationship' || $op == 'delete') {
+  if ($entity != 'Relationship' || $op == 'delete' || empty($entityArray['relationship_type_id'])) {
     return;
   }
   $relationshipType = explode('_', $entityArray['relationship_type_id']);
