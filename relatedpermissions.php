@@ -88,16 +88,19 @@ function relatedpermissions_civicrm_aclWhereClause($type, &$tables, &$whereTable
   if (!$contactID) {
     return;
   }
-  $tmpTableName = _relatedpermissions_get_permissionedtable($contactID);
 
-  $tables ['$tmpTableName'] = $whereTables ['$tmpTableName'] =
-    " LEFT JOIN $tmpTableName permrelationships
+  if (!CRM_Core_Permission::check('edit all contacts')) {
+    $tmpTableName = _relatedpermissions_get_permissionedtable($contactID);
+
+    $tables ['$tmpTableName'] = $whereTables ['$tmpTableName'] =
+      " LEFT JOIN $tmpTableName permrelationships
      ON (contact_a.id = permrelationships.contact_id)";
-  if(empty($where)){
-    $where = " permrelationships.contact_id IS NOT NULL ";
-  }
-  else{
-    $where = '(' . $where . " OR permrelationships.contact_id IS NOT NULL " . ')';
+    if (empty($where)) {
+      $where = " permrelationships.contact_id IS NOT NULL ";
+    }
+    else {
+      $where = '(' . $where . " OR permrelationships.contact_id IS NOT NULL " . ')';
+    }
   }
 }
 /**
