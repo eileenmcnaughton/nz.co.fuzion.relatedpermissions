@@ -117,14 +117,14 @@ function _relatedpermissions_get_permissionedtable($contactID) {
   else {
     $tmpTableName = 'my_relationships_' . $contactID . '_' . rand(10000, 100000);
     $sql = "CREATE TEMPORARY TABLE $tmpTableName (
-     `contact_id` INT(10) NULL DEFAULT NULL,
+     `contact_id` INT(10) NOT NULL,
      PRIMARY KEY (`contact_id`)
     )";
 
     CRM_Core_DAO::executeQuery($sql);
     $tmpTableSecondaryContacts = 'my_secondary_relationships' . $dateKey . rand(10000, 100000);
     $sql = "CREATE TEMPORARY TABLE $tmpTableSecondaryContacts (
-     `contact_id` INT(10) NULL DEFAULT NULL,
+     `contact_id` INT(10) NOT NULL,
      PRIMARY KEY (`contact_id`),
      `contact_type` VARCHAR(50) NULL DEFAULT NULL
     )";
