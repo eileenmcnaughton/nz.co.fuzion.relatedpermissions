@@ -51,9 +51,9 @@ function relatedpermissions_civicrm_alterEntitySettingsFolders(&$folders) {
   if ($configured) return;
   $configured = TRUE;
 
-  $extRoot = dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
+  $extRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
   $extDir = $extRoot . 'settings';
-  if(!in_array($extDir, $folders)){
+  if (!in_array($extDir, $folders)) {
     $folders[] = $extDir;
   }
 }
@@ -90,9 +90,9 @@ function relatedpermissions_civicrm_aclWhereClause($type, &$tables, &$whereTable
   }
 
   if (!CRM_Core_Permission::check('edit all contacts')) {
-    $tmpTableName = _relatedpermissions_get_permissionedtable($contactID);
+    $tmpTableName = _relatedpermissions_get_permissionedtable($contactID, $type);
 
-    $tables ['$tmpTableName'] = $whereTables ['$tmpTableName'] =
+    $tables['$tmpTableName'] = $whereTables['$tmpTableName'] =
       " LEFT JOIN $tmpTableName permrelationships
      ON (contact_a.id = permrelationships.contact_id)";
     if (empty($where)) {
@@ -108,11 +108,11 @@ function relatedpermissions_civicrm_aclWhereClause($type, &$tables, &$whereTable
  * If the contacts are organisations then we want all contacts they have permission
  * over. Note that in order to avoid ORs & unindexed fields in the ON clause we use several queries
  */
-function _relatedpermissions_get_permissionedtable($contactID) {
+function _relatedpermissions_get_permissionedtable($contactID, $type) {
   static $tempTables = array();
-  $dateKey=date('dhis');
-  if (!empty($tempTables[$contactID])) {
-    return $tempTables[$contactID]['permissioned_contacts'];
+  $dateKey = date('dhis');
+  if (!empty($tempTables[$contactID][$type])) {
+    return $tempTables[$contactID][$type]['permissioned_contacts'];
   }
   else {
     $tmpTableName = 'my_relationships_' . $contactID . '_' . rand(10000, 100000);
@@ -131,10 +131,24 @@ function _relatedpermissions_get_permissionedtable($contactID) {
 
     CRM_Core_DAO::executeQuery($sql);
   }
-  $tempTables[$contactID]['permissioned_contacts'] = $tmpTableName;
-  $tempTables[$contactID]['permissioned_secondary_contacts'] = $tmpTableSecondaryContacts ;
+  $tempTables[$contactID][$type]['permissioned_contacts'] = $tmpTableName;
+  $tempTables[$contactID][$type]['permissioned_secondary_contacts'] = $tmpTableSecondaryContacts;
 
   $now = date('Y-m-d');
+
+  // Ideally would use CRM_Contact_BAO_Relationship::VIEW and CRM_Contact_BAO_Relationship::EDIT
+  // but that makes this extension dependent on a recent core release,
+  // so set these here to have the same values
+  $CRM_Contact_BAO_Relationship_EDIT = 1;
+  $CRM_Contact_BAO_Relationship_VIEW = 2;
+
+  // Determine the permission clause from the access type requested
+  if ($type == CRM_Core_Permission::VIEW) {
+    $permissionClause = " IN ( $CRM_Contact_BAO_Relationship_EDIT , $CRM_Contact_BAO_Relationship_VIEW ) ";
+  }
+  else {
+    $permissionClause = " = $CRM_Contact_BAO_Relationship_EDIT ";
+  }
 
   $sql = "INSERT INTO $tmpTableName
     SELECT DISTINCT contact_id_a FROM civicrm_relationship
@@ -142,7 +156,7 @@ function _relatedpermissions_get_permissionedtable($contactID) {
     AND is_active = 1
     AND (start_date IS NULL OR start_date <= '{$now}' )
     AND (end_date IS NULL OR end_date >= '{$now}')
-    AND is_permission_b_a = 1
+    AND is_permission_b_a $permissionClause
   ";
 
   CRM_Core_DAO::executeQuery($sql);
@@ -153,15 +167,15 @@ function _relatedpermissions_get_permissionedtable($contactID) {
     AND is_active = 1
     AND (start_date IS NULL OR start_date <= '{$now}' )
     AND (end_date IS NULL OR end_date >= '{$now}')
-    AND is_permission_a_b = 1
+    AND is_permission_a_b $permissionClause
   ";
 
-    CRM_Core_DAO::executeQuery($sql);
+  CRM_Core_DAO::executeQuery($sql);
   /*
   * Next we generate a table of the permissioned contacts permissioned contacts for Orgs & Households
   */
 
-  calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName, $now);
+  calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName, $now, $permissionClause);
 
   $sql = "REPLACE INTO $tmpTableName
     SELECT contact_id FROM $tmpTableSecondaryContacts";
@@ -176,7 +190,7 @@ function _relatedpermissions_get_permissionedtable($contactID) {
   if ($secondDegreePerms) {
     $continue = 1;
     while ($continue > 0) {
-      calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName, $now);
+      calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName, $now, $permissionClause);
       $newPotentialPermissionInheritingContacts = CRM_Core_DAO::singleValueQuery("
      SELECT count(*) FROM $tmpTableSecondaryContacts s
      LEFT JOIN $tmpTableName m ON s.contact_id = m.contact_id
@@ -185,7 +199,7 @@ function _relatedpermissions_get_permissionedtable($contactID) {
       SELECT contact_id FROM $tmpTableSecondaryContacts
     ";
 
-    CRM_Core_DAO::executeQuery($sql);
+      CRM_Core_DAO::executeQuery($sql);
       //keep going as long as we are adding
       //new contacts to our table
       $continue = $newPotentialPermissionInheritingContacts;
@@ -199,7 +213,7 @@ function _relatedpermissions_get_permissionedtable($contactID) {
  * @param $tmpTableName
  * @param $now
  */
-function calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName, $now) {
+function calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName, $now, $permissionClause) {
   $sql = "REPLACE INTO $tmpTableSecondaryContacts
     SELECT DISTINCT contact_id_b, contact_b.contact_type
     FROM $tmpTableName tmp
@@ -210,7 +224,7 @@ function calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName
     r.is_active = 1
     AND (start_date IS NULL OR start_date <= '{$now}' )
     AND (end_date IS NULL OR end_date >= '{$now}')
-    AND is_permission_a_b = 1
+    AND is_permission_a_b $permissionClause
     AND c.is_deleted = 0
   ";
 
@@ -226,7 +240,7 @@ function calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName
     r.is_active = 1
     AND (start_date IS NULL OR start_date <= '{$now}' )
     AND (end_date IS NULL OR end_date >= '{$now}')
-    AND is_permission_b_a = 1
+    AND is_permission_b_a $permissionClause
     AND c.is_deleted = 0
   ";
 
@@ -244,11 +258,11 @@ function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) 
   }
   $relationshipType = explode('_', $entityArray['relationship_type_id']);
 
-  if(_relatedpermissions_is_permission($relationshipType[0], 'a_b')) {
-    $entityArray['is_permission_a_b'] = TRUE;
-  }
-  if(_relatedpermissions_is_permission($relationshipType[0], 'b_a')) {
-    $entityArray['is_permission_b_a'] = TRUE;
+  foreach (array('a_b', 'b_a') as $direction) {
+    $perm = _relatedpermissions_is_permission($relationshipType[0], $direction);
+    if (isset($perm) && $perm != '') {
+      $entityArray['is_permission_' . $direction] = $perm;
+    }
   }
 }
 
@@ -260,7 +274,7 @@ function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) 
  */
 function _relatedpermissions_is_permission($entity_id, $direction) {
   static $settings = array();
-  if(!isset($settings[$entity_id])) {
+  if (!isset($settings[$entity_id])) {
     $entity_settings = civicrm_api3('entity_setting', 'get', array(
       'key' => 'nz.co.fuzion.relatedpermissions',
       'entity_id' => $entity_id,
