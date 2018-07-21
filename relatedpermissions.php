@@ -136,19 +136,9 @@ function relatedpermissions_civicrm_entityTypes(&$entityTypes) {
 
 // Related Perms stuff
 
-function relatedpermissions_civicrm_alterEntitySettingsFolders(&$folders) {
-  static $configured = FALSE;
-  if ($configured) return;
-  $configured = TRUE;
-
-  $extRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
-  $extDir = $extRoot . 'settings';
-  if (!in_array($extDir, $folders)) {
-    $folders[] = $extDir;
-  }
-}
-
-/*
+/**
+ * Implements hook_civicrm_aclWhereClause().
+ *
  * Implement WHERE Clause - we find the contacts for whom this contact has permission and
  * specifically give permission to them
  */
@@ -240,8 +230,8 @@ function _relatedpermissions_get_permissionedtable($contactID, $type) {
 
   CRM_Core_DAO::executeQuery($sql);
   /*
-  * Next we generate a table of the permissioned contacts permissioned contacts for Orgs & Households
-  */
+   * Next we generate a table of the permissioned contacts permissioned contacts for Orgs & Households
+   */
 
   calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName, $now, $permissionClause);
 
@@ -315,6 +305,12 @@ function calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName
   CRM_Core_DAO::executeQuery($sql);
 }
 
+function relatedpermissions_civicrm_buildForm($formName, &$form) {
+  if ($formName == 'CRM_Contact_Form_Relationship') {
+    CRM_Core_Resources::singleton()->addScriptFile(E::LONG_NAME, 'js/set_permissions.js');
+  }
+}
+
 /**
  * Set permissions if required
  * @param unknown $a
@@ -325,32 +321,23 @@ function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) 
     return;
   }
   $relationshipType = explode('_', $entityArray['relationship_type_id']);
-
-  foreach (array('a_b', 'b_a') as $direction) {
-    $perm = _relatedpermissions_is_permission($relationshipType[0], $direction);
-    if (isset($perm) && $perm != '') {
-      $entityArray['is_permission_' . $direction] = $perm;
+  // dpm($entityArray, "entity array");
+  $permissionSettings = CRM_Relatedpermissions_Utils_Relatedpermissions::getSettings($relationshipType[0]);
+  foreach (['a_b', 'b_a'] as $direction) {
+    // check mode & value....
+    if ($permissionSettings['permission_' . $direction . '_mode']) {
+      if ($permissionSettings['permission_' . $direction] != '') {
+        // enforce
+        $entityArray['is_permission_' . $direction] = $permissionSettings['permission_' . $direction];
+      }
+    }
+    else {
+      if ($permissionSettings['permission_' . $direction] != '' && $entityArray['is_permission_' . $direction] == '') {
+        // default
+        $entityArray['is_permission_' . $direction] = $permissionSettings['permission_' . $direction];
+      }
     }
   }
-}
-
-/**
- * Get permission for a given entity id in a given direction
- * @param integer $entity_id
- * @param string $direction
- * @return Ambigous <null, array>
- */
-function _relatedpermissions_is_permission($entity_id, $direction) {
-  static $settings = array();
-  if (!isset($settings[$entity_id])) {
-    $entity_settings = civicrm_api3('entity_setting', 'get', array(
-      'key' => 'nz.co.fuzion.relatedpermissions',
-      'entity_id' => $entity_id,
-      'entity_type' => 'relationship_type')
-    );
-    $settings = $entity_settings['values'][$entity_id];
-  }
-  return CRM_Utils_Array::value('always_permission_' . $direction, $settings);
 }
 
 // --- Functions below this ship commented out. Uncomment as required. ---

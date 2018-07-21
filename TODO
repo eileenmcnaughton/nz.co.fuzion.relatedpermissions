@@ -1,0 +1,7 @@
+X Remove entity_settings stuff
+X Add custom-data-on-any
+Sort out default values
+? can initial value of permission option be unset?
+Improve creation of custom values:
+ - on Admin > Customize > Relationship Types > Edit, the custom values are editable - make them reserved ?
+ 
