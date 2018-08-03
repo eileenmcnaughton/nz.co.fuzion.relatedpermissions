@@ -1,86 +1,144 @@
 <?php
 
 require_once 'relatedpermissions.civix.php';
+use CRM_Relatedpermissions_ExtensionUtil as E;
 
 /**
- * Implementation of hook_civicrm_config
+ * Implements hook_civicrm_config().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
  */
 function relatedpermissions_civicrm_config(&$config) {
   _relatedpermissions_civix_civicrm_config($config);
 }
 
 /**
- * Implementation of hook_civicrm_xmlMenu
+ * Implements hook_civicrm_xmlMenu().
  *
- * @param $files array(string)
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_xmlMenu
  */
 function relatedpermissions_civicrm_xmlMenu(&$files) {
   _relatedpermissions_civix_civicrm_xmlMenu($files);
 }
 
 /**
- * Implementation of hook_civicrm_install
+ * Implements hook_civicrm_install().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function relatedpermissions_civicrm_install() {
-  return _relatedpermissions_civix_civicrm_install();
+  _relatedpermissions_civix_civicrm_install();
 }
 
 /**
- * Implementation of hook_civicrm_uninstall
+ * Implements hook_civicrm_postInstall().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postInstall
+ */
+function relatedpermissions_civicrm_postInstall() {
+  _relatedpermissions_civix_civicrm_postInstall();
+}
+
+/**
+ * Implements hook_civicrm_uninstall().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_uninstall
  */
 function relatedpermissions_civicrm_uninstall() {
-  return _relatedpermissions_civix_civicrm_uninstall();
+  _relatedpermissions_civix_civicrm_uninstall();
 }
 
 /**
- * Implementation of hook_civicrm_enable
+ * Implements hook_civicrm_enable().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
 function relatedpermissions_civicrm_enable() {
-  return _relatedpermissions_civix_civicrm_enable();
+  _relatedpermissions_civix_civicrm_enable();
 }
 
 /**
- * Implementation of hook_civicrm_disable
+ * Implements hook_civicrm_disable().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_disable
  */
 function relatedpermissions_civicrm_disable() {
-  return _relatedpermissions_civix_civicrm_disable();
-}
-
-function relatedpermissions_civicrm_alterEntitySettingsFolders(&$folders) {
-  static $configured = FALSE;
-  if ($configured) return;
-  $configured = TRUE;
-
-  $extRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
-  $extDir = $extRoot . 'settings';
-  if (!in_array($extDir, $folders)) {
-    $folders[] = $extDir;
-  }
+  _relatedpermissions_civix_civicrm_disable();
 }
 
 /**
- * Implementation of hook_civicrm_upgrade
+ * Implements hook_civicrm_upgrade().
  *
- * @param $op string, the type of operation being performed; 'check' or 'enqueue'
- * @param $queue CRM_Queue_Queue, (for 'enqueue') the modifiable list of pending up upgrade tasks
- *
- * @return mixed  based on op. for 'check', returns array(boolean) (TRUE if upgrades are pending)
- *                for 'enqueue', returns void
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_upgrade
  */
 function relatedpermissions_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
   return _relatedpermissions_civix_civicrm_upgrade($op, $queue);
 }
 
 /**
- * Implementation of hook_civicrm_managed
+ * Implements hook_civicrm_managed().
  *
  * Generate a list of entities to create/deactivate/delete when this module
  * is installed, disabled, uninstalled.
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_managed
  */
 function relatedpermissions_civicrm_managed(&$entities) {
-  return _relatedpermissions_civix_civicrm_managed($entities);
+  _relatedpermissions_civix_civicrm_managed($entities);
 }
-/*
+
+/**
+ * Implements hook_civicrm_caseTypes().
+ *
+ * Generate a list of case-types.
+ *
+ * Note: This hook only runs in CiviCRM 4.4+.
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_caseTypes
+ */
+function relatedpermissions_civicrm_caseTypes(&$caseTypes) {
+  _relatedpermissions_civix_civicrm_caseTypes($caseTypes);
+}
+
+/**
+ * Implements hook_civicrm_angularModules().
+ *
+ * Generate a list of Angular modules.
+ *
+ * Note: This hook only runs in CiviCRM 4.5+. It may
+ * use features only available in v4.6+.
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_angularModules
+ */
+function relatedpermissions_civicrm_angularModules(&$angularModules) {
+  _relatedpermissions_civix_civicrm_angularModules($angularModules);
+}
+
+/**
+ * Implements hook_civicrm_alterSettingsFolders().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_alterSettingsFolders
+ */
+function relatedpermissions_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
+  _relatedpermissions_civix_civicrm_alterSettingsFolders($metaDataFolders);
+}
+
+/**
+ * Implements hook_civicrm_entityTypes().
+ *
+ * Declare entity types provided by this module.
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_entityTypes
+ */
+function relatedpermissions_civicrm_entityTypes(&$entityTypes) {
+  _relatedpermissions_civix_civicrm_entityTypes($entityTypes);
+}
+
+// Related Perms stuff
+
+/**
+ * Implements hook_civicrm_aclWhereClause().
+ *
  * Implement WHERE Clause - we find the contacts for whom this contact has permission and
  * specifically give permission to them
  */
@@ -172,8 +230,8 @@ function _relatedpermissions_get_permissionedtable($contactID, $type) {
 
   CRM_Core_DAO::executeQuery($sql);
   /*
-  * Next we generate a table of the permissioned contacts permissioned contacts for Orgs & Households
-  */
+   * Next we generate a table of the permissioned contacts permissioned contacts for Orgs & Households
+   */
 
   calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName, $now, $permissionClause);
 
@@ -247,6 +305,12 @@ function calculateInheritedPermissions($tmpTableSecondaryContacts, $tmpTableName
   CRM_Core_DAO::executeQuery($sql);
 }
 
+function relatedpermissions_civicrm_buildForm($formName, &$form) {
+  if ($formName == 'CRM_Contact_Form_Relationship') {
+    CRM_Core_Resources::singleton()->addScriptFile(E::LONG_NAME, 'js/set_permissions.js');
+  }
+}
+
 /**
  * Set permissions if required
  * @param unknown $a
@@ -257,30 +321,49 @@ function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) 
     return;
   }
   $relationshipType = explode('_', $entityArray['relationship_type_id']);
-
-  foreach (array('a_b', 'b_a') as $direction) {
-    $perm = _relatedpermissions_is_permission($relationshipType[0], $direction);
-    if (isset($perm) && $perm != '') {
-      $entityArray['is_permission_' . $direction] = $perm;
+  // dpm($entityArray, "entity array");
+  $permissionSettings = CRM_Relatedpermissions_Utils_Relatedpermissions::getSettings($relationshipType[0]);
+  foreach (['a_b', 'b_a'] as $direction) {
+    // check mode & value....
+    if ($permissionSettings['permission_' . $direction . '_mode']) {
+      if ($permissionSettings['permission_' . $direction] != '') {
+        // enforce
+        $entityArray['is_permission_' . $direction] = $permissionSettings['permission_' . $direction];
+      }
+    }
+    else {
+      if ($permissionSettings['permission_' . $direction] != '' && $entityArray['is_permission_' . $direction] == '') {
+        // default
+        $entityArray['is_permission_' . $direction] = $permissionSettings['permission_' . $direction];
+      }
     }
   }
 }
 
+// --- Functions below this ship commented out. Uncomment as required. ---
+
 /**
- * Get permission for a given entity id in a given direction
- * @param integer $entity_id
- * @param string $direction
- * @return Ambigous <null, array>
- */
-function _relatedpermissions_is_permission($entity_id, $direction) {
-  static $settings = array();
-  if (!isset($settings[$entity_id])) {
-    $entity_settings = civicrm_api3('entity_setting', 'get', array(
-      'key' => 'nz.co.fuzion.relatedpermissions',
-      'entity_id' => $entity_id,
-      'entity_type' => 'relationship_type')
-    );
-    $settings = $entity_settings['values'][$entity_id];
-  }
-  return CRM_Utils_Array::value('always_permission_' . $direction, $settings);
-}
+ * Implements hook_civicrm_preProcess().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_preProcess
+ *
+function relatedpermissions_civicrm_preProcess($formName, &$form) {
+
+} // */
+
+/**
+ * Implements hook_civicrm_navigationMenu().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
+ *
+function relatedpermissions_civicrm_navigationMenu(&$menu) {
+  _relatedpermissions_civix_insert_navigation_menu($menu, 'Mailings', array(
+    'label' => E::ts('New subliminal message'),
+    'name' => 'mailing_subliminal_message',
+    'url' => 'civicrm/mailing/subliminal',
+    'permission' => 'access CiviMail',
+    'operator' => 'OR',
+    'separator' => 0,
+  ));
+  _relatedpermissions_civix_navigationMenu($menu);
+} // */
