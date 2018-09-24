@@ -340,30 +340,13 @@ function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) 
   }
 }
 
-// --- Functions below this ship commented out. Uncomment as required. ---
-
 /**
- * Implements hook_civicrm_preProcess().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_preProcess
- *
-function relatedpermissions_civicrm_preProcess($formName, &$form) {
-
-} // */
-
-/**
- * Implements hook_civicrm_navigationMenu().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
- *
-function relatedpermissions_civicrm_navigationMenu(&$menu) {
-  _relatedpermissions_civix_insert_navigation_menu($menu, 'Mailings', array(
-    'label' => E::ts('New subliminal message'),
-    'name' => 'mailing_subliminal_message',
-    'url' => 'civicrm/mailing/subliminal',
-    'permission' => 'access CiviMail',
-    'operator' => 'OR',
-    'separator' => 0,
-  ));
-  _relatedpermissions_civix_navigationMenu($menu);
-} // */
+ * Implements hook_civicrm_apiWrappers
+ */
+function relatedpermissions_civicrm_apiWrappers(&$wrappers, $apiRequest) {
+  //&apiWrappers is an array of wrappers, you can add your(s) with the hook.
+  // You can use the apiRequest to decide if you want to add the wrapper (eg. only wrap api.Contact.create)
+  if ($apiRequest['entity'] == 'Relationship' && $apiRequest['action'] == 'get') {
+    $wrappers[] = new CRM_Relatedpermissions_APIWrapper();
+  }
+}

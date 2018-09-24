@@ -41,4 +41,23 @@ class CRM_Relatedpermissions_Utils_Relatedpermissions {
     return \Civi::$statics[__CLASS__]['custom_fields'];
   }
 
+  /**
+   * Given a relationship array, enforce the permissions and return the array with the updated permissions
+   *
+   * @param array $relationship
+   */
+  public static function enforcePermissions($relationship) {
+    $permissionSettings = CRM_Relatedpermissions_Utils_Relatedpermissions::getSettings($relationship['relationship_type_id']);
+    foreach (['a_b', 'b_a'] as $direction) {
+      // check mode & value....
+      if ($permissionSettings['permission_' . $direction . '_mode']) {
+        if ($permissionSettings['permission_' . $direction] != '') {
+          // enforce
+          $relationship['is_permission_' . $direction] = $permissionSettings['permission_' . $direction];
+        }
+      }
+    }
+    return $relationship;
+  }
+
 }
