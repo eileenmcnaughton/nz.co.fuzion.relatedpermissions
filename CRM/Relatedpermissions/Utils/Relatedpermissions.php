@@ -8,6 +8,7 @@ class CRM_Relatedpermissions_Utils_Relatedpermissions {
       $fields = CRM_Relatedpermissions_Utils_Relatedpermissions::getPermissionFields();
       $res = civicrm_api3('RelationshipType', 'get', [
         'return' => array_keys($fields),
+        'options' => ['limit' => 0],
       ]);
       $permissionSettings = [];
       foreach ($res['values'] as $relType) {
