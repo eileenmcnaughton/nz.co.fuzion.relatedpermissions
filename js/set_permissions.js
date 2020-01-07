@@ -10,18 +10,27 @@ CRM.$(function($) {
     $('input[type="radio"][name="is_permission_b_a"][value="' + origBA + '"]').prop('checked', true);
     // on Add Relationship screen, relationship type is not set
     // on Edit Relationship screen, relationship type is current type
-    var relType = $(this).val();
-    if (!relType) {
+    var relTypeId = $(this).val();
+    if (!relTypeId) {
       return;
     }
+    var relType = relTypeId.substr(relTypeId.length - 3);
 
-    CRM.api3('Relationship', 'getsettings', { relationship_type_id: relType })
+    CRM.api3('Relationship', 'getsettings', { relationship_type_id: relTypeId })
       .done(function (data) {
         if (data.values) {
           var ABmode = data.values.permission_a_b_mode;
           var BAmode = data.values.permission_b_a_mode;
-          var ABperm = data.values.permission_a_b;
-          var BAperm = data.values.permission_b_a;
+          var ABperm;
+          var BAperm;
+          if (relType == 'a_b') {
+            ABperm = data.values.permission_a_b;
+            BAperm = data.values.permission_b_a;
+          }
+          else {
+            ABperm = data.values.permission_b_a;
+            BAperm = data.values.permission_a_b;
+          }
           var alert = 0;
           if (ABmode == 1) {
             // Enforce mode
