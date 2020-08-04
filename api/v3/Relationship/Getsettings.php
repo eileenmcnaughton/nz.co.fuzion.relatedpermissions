@@ -1,5 +1,4 @@
 <?php
-use CRM_Relatedpermissions_ExtensionUtil as E;
 
 /**
  * Relationship.GetSettings API specification (optional)
@@ -11,7 +10,7 @@ use CRM_Relatedpermissions_ExtensionUtil as E;
  */
 function _civicrm_api3_relationship_getsettings_spec(&$spec) {
   // $spec['magicword']['api.required'] = 1;
-  $spec['relationship_type_id'] = 1;
+  $spec['relationship_type_id']['api.required'] = 1;
 }
 
 /**
@@ -31,6 +30,5 @@ function civicrm_api3_relationship_getsettings($params) {
     $type = $bits[0];
   }
   $returnValues = CRM_Relatedpermissions_Utils_Relatedpermissions::getSettings($type);
-
   return civicrm_api3_create_success($returnValues, $params, 'Relationship', 'getsettings');
 }

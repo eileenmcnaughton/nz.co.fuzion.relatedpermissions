@@ -9,41 +9,61 @@ use Civi\Test\TransactionalInterface;
  * This is a generic test class implemented with PHPUnit.
  * @group headless
  */
-class api_v3_Relationship_GetSettingsTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
+class api_v3_Relationship_GetSettingsTest extends \PHPUnit\Framework\TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
+
+  use \Civi\Test\ContactTestTrait;
+  use \Civi\Test\Api3TestTrait;
 
   /**
-   * Civi\Test has many helpers, like install(), uninstall(), sql(), and sqlFile().
-   * See: https://github.com/civicrm/org.civicrm.testapalooza/blob/master/civi-test.md
+   * @var int
+   * Relationship Type ID
    */
+  private $relationshipTypeID;
+
   public function setUpHeadless() {
+    // Civi\Test has many helpers, like install(), uninstall(), sql(), and sqlFile().
+    // See: https://docs.civicrm.org/dev/en/latest/testing/phpunit/#civitest
     return \Civi\Test::headless()
       ->installMe(__DIR__)
       ->apply();
   }
 
-  /**
-   * The setup() method is executed before the test is executed (optional).
-   */
   public function setUp() {
+    $customFields = CRM_Relatedpermissions_Utils_Relatedpermissions::getPermissionFields();
+    $params = [
+      'name_a_b' => 'Relation 1 for create',
+      'name_b_a' => 'Relation 2 for create',
+      'description' => 'Testing relationship type',
+      'contact_type_a' => 'Individual',
+      'contact_type_b' => 'Individual',
+      'is_reserved' => 1,
+      'is_active' => 1,
+    ];
+    foreach (array_keys($customFields) as $field) {
+      $params[$field] = 0;
+    }
+    $relationshipType = $this->callAPISuccess('RelationshipType', 'create', $params);
+    $this->relationshipTypeID = $relationshipType['id'];
     parent::setUp();
   }
 
-  /**
-   * The tearDown() method is executed after the test was executed (optional)
-   * This can be used for cleanup.
-   */
   public function tearDown() {
+    $this->callAPISuccess('RelationshipType', 'delete', ['id' => $this->relationshipTypeID]);
     parent::tearDown();
   }
 
-  /**
-   * Simple example test case.
-   *
-   * Note how the function name begins with the word "test".
-   */
-  public function testApiExample() {
-    $result = civicrm_api3('Relationship', 'GetSettings', array('magicword' => 'sesame'));
-    $this->assertEquals('Twelve', $result['values'][12]['name']);
+  public function testGetSettings() {
+    $result = $this->callAPISuccess('Relationship', 'getsettings', ['relationship_type_id' => $this->relationshipTypeID]);
+    $this->assertEquals([
+      'permission_a_b' => 0,
+      'permission_a_b_mode' => 0,
+      'permission_b_a' => 0,
+      'permission_b_a_mode' => 0,
+    ], $result['values']);
+  }
+
+  public function testGetSettingsNoRelationshipType() {
+    $this->callAPIFailure('Relationship', 'getsettings', []);
   }
 
 }
