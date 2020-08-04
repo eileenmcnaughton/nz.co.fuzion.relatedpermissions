@@ -149,18 +149,22 @@ function relatedpermissions_civicrm_aclWhereClause($type, &$tables, &$whereTable
 
   if (!CRM_Core_Permission::check('edit all contacts')) {
     $tmpTableName = _relatedpermissions_get_permissionedtable($contactID, $type);
-
-    $tables['$tmpTableName'] = $whereTables['$tmpTableName'] =
-      " LEFT JOIN $tmpTableName permrelationships
-     ON (contact_a.id = permrelationships.contact_id)";
-    if (empty($where)) {
-      $where = " permrelationships.contact_id IS NOT NULL ";
-    }
-    else {
-      $where = '(' . $where . " OR permrelationships.contact_id IS NOT NULL " . ')';
+    // Do not add in the permission table join and associated OR clause if there are no permitted relationships
+    $check = CRM_Core_DAO::singleValueQuery("SELECT count(contact_id) as contact_count FROM {$tmpTableName}");
+    if (!empty($check) || (empty($check) && empty($where))) {
+      $tables['$tmpTableName'] = $whereTables['$tmpTableName'] =
+        " LEFT JOIN $tmpTableName permrelationships
+       ON (contact_a.id = permrelationships.contact_id)";
+      if (empty($where)) {
+        $where = " permrelationships.contact_id IS NOT NULL ";
+      }
+      else {
+        $where = '(' . $where . " OR permrelationships.contact_id IS NOT NULL " . ')';
+      }
     }
   }
 }
+
 /**
  * Create temporary table of all permissioned contacts.
  * If the contacts are organisations then we want all contacts they have permission
@@ -313,8 +317,10 @@ function relatedpermissions_civicrm_buildForm($formName, &$form) {
 
 /**
  * Set permissions if required
- * @param unknown $a
- * @param unknown $b
+ * @param string $op
+ * @param string $entity
+ * @param int|null $objectID
+ * @param array $entityArray
  */
 function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) {
   if ($entity != 'Relationship' || $op == 'delete' || empty($entityArray['relationship_type_id'])) {
@@ -346,24 +352,24 @@ function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) 
  * Implements hook_civicrm_preProcess().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_preProcess
- *
-function relatedpermissions_civicrm_preProcess($formName, &$form) {
+ */
+//function relatedpermissions_civicrm_preProcess($formName, &$form) {
 
-} // */
+//}
 
 /**
  * Implements hook_civicrm_navigationMenu().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
- *
-function relatedpermissions_civicrm_navigationMenu(&$menu) {
-  _relatedpermissions_civix_insert_navigation_menu($menu, 'Mailings', array(
-    'label' => E::ts('New subliminal message'),
-    'name' => 'mailing_subliminal_message',
-    'url' => 'civicrm/mailing/subliminal',
-    'permission' => 'access CiviMail',
-    'operator' => 'OR',
-    'separator' => 0,
-  ));
-  _relatedpermissions_civix_navigationMenu($menu);
-} // */
+ */
+//function relatedpermissions_civicrm_navigationMenu(&$menu) {
+//  _relatedpermissions_civix_insert_navigation_menu($menu, 'Mailings', array(
+//    'label' => E::ts('New subliminal message'),
+//    'name' => 'mailing_subliminal_message',
+//    'url' => 'civicrm/mailing/subliminal',
+//    'permission' => 'access CiviMail',
+//    'operator' => 'OR',
+//    'separator' => 0,
+//  ));
+//  _relatedpermissions_civix_navigationMenu($menu);
+//}
