@@ -1,5 +1,5 @@
 Package: nz.co.fuzion.relatedpermissions
-Copyright (C) 2018, Eileen McNaughton <eileen@fuzion.co.nz>
+Copyright (C) 2021, Eileen McNaughton <eileen@fuzion.co.nz>
 Licensed under the GNU Affero Public License 3.0 (below).
 
 -------------------------------------------------------------------------------
