@@ -5,12 +5,12 @@
  * database as appropriate. For more details, see "hook_civicrm_managed" at:
  * http://wiki.civicrm.org/confluence/display/CRMDOC/Hook+Reference
  */
-return array(
-  0 => array (
+return [
+  0 => [
     'name' => 'Cron:Relationship.prune_temp_tables',
     'entity' => 'Job',
     'update' => 'never',
-    'params' => array (
+    'params' => [
       'version' => 3,
       'name' => 'Drop temporary relationship ACL tables',
       'description' => 'Cleanup temporary tables created by Related Permissions extension',
@@ -18,6 +18,6 @@ return array(
       'api_entity' => 'Relationship',
       'api_action' => 'prune_temp_tables',
       'parameters' => '',
-    ),
-  ),
-);
+    ],
+  ],
+];
