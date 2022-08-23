@@ -23,7 +23,7 @@ class CRM_Relatedpermissions_Upgrader extends CRM_Relatedpermissions_Upgrader_Ba
       civicrm_api3('OptionValue', 'create', [
         'option_group_id' => 'cg_extend_objects',
         'name' => 'civicrm_relationship_type',
-        'label' => ts('Relationship Type'),
+        'label' => E::ts('Relationship Type'),
         'value' => 'RelationshipType',
       ]);
     }
@@ -36,22 +36,25 @@ class CRM_Relatedpermissions_Upgrader extends CRM_Relatedpermissions_Upgrader_Ba
         'extends' => 'RelationshipType',
         'name' => E::SHORT_NAME,
         'title' => E::ts('Related Permissions Settings'),
+        'is_active' => 1,
+        'is_reserved' => 1,
       ]);
     }
     $customFields = civicrm_api3('CustomField', 'get', [
       'custom_group_id' => $customGroups['id'],
     ]);
     if (!$customFields['count']) {
-      $newFields[] = civicrm_api3('CustomField', 'create', [
+      civicrm_api3('CustomField', 'create', [
         'custom_group_id' => $customGroups['id'],
         'name' => 'permission_a_b',
         'label' => E::ts('Permission that A has over B'),
         'weight' => 1,
         'data_type' => 'Int',
         'html_type' => 'Radio',
-        'option_values' => CRM_Core_SelectValues::getPermissionedRelationshipOptions(),
+        'option_values' => $this->getPermissionedRelationshipOptions(),
+        'is_active' => 1,
       ]);
-      $newFields[] = civicrm_api3('CustomField', 'create', [
+      civicrm_api3('CustomField', 'create', [
         'custom_group_id' => $customGroups['id'],
         'name' => 'permission_a_b_mode',
         'label' => E::ts('Permission A over B mode'),
@@ -62,17 +65,19 @@ class CRM_Relatedpermissions_Upgrader extends CRM_Relatedpermissions_Upgrader_Ba
         'required' => 1,
         'default_value' => 0,
         'option_values' => [E::ts('Default'), E::ts('Override')],
+        'is_active' => 1,
       ]);
-      $newFields[] = civicrm_api3('CustomField', 'create', [
+      civicrm_api3('CustomField', 'create', [
         'custom_group_id' => $customGroups['id'],
         'name' => 'permission_b_a',
         'label' => E::ts('Permission that B has over A'),
         'weight' => 3,
         'data_type' => 'Int',
         'html_type' => 'Radio',
-        'option_values' => CRM_Core_SelectValues::getPermissionedRelationshipOptions(),
+        'option_values' => $this->getPermissionedRelationshipOptions(),
+        'is_active' => 1,
       ]);
-      $newFields[] = civicrm_api3('CustomField', 'create', [
+      civicrm_api3('CustomField', 'create', [
         'custom_group_id' => $customGroups['id'],
         'name' => 'permission_b_a_mode',
         'label' => E::ts('Permission B over A mode'),
@@ -83,6 +88,7 @@ class CRM_Relatedpermissions_Upgrader extends CRM_Relatedpermissions_Upgrader_Ba
         'required' => 1,
         'default_value' => 0,
         'option_values' => [E::ts('Default'), E::ts('Override')],
+        'is_active' => 1,
       ]);
     }
   }
@@ -94,6 +100,19 @@ class CRM_Relatedpermissions_Upgrader extends CRM_Relatedpermissions_Upgrader_Ba
   public function upgrade_1502() {
     $this->create_custom_fields();
     return TRUE;
+  }
+
+  /**
+   * See https://github.com/civicrm/civicrm-core/pull/23865
+   *
+   * @return array
+   */
+  private function getPermissionedRelationshipOptions() {
+    return [
+      CRM_Contact_BAO_Relationship::NONE => ts('None'),
+      CRM_Contact_BAO_Relationship::VIEW => ts('View only'),
+      CRM_Contact_BAO_Relationship::EDIT => ts('View and update')
+    ];
   }
 
 }
