@@ -281,7 +281,10 @@ function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) 
       }
     }
     else {
-      if (isset($permissionSettings['permission_' . $direction]) && $entityArray['is_permission_' . $direction] == '') {
+      if (isset($permissionSettings['permission_' . $direction]) &&
+        $entityArray['is_permission_' . $direction] == '' &&
+        $op == 'create'
+      ) {
         // default
         $entityArray['is_permission_' . $direction] = $permissionSettings['permission_' . $direction];
       }
