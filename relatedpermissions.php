@@ -22,59 +22,12 @@ function relatedpermissions_civicrm_install() {
 }
 
 /**
- * Implements hook_civicrm_postInstall().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postInstall
- */
-function relatedpermissions_civicrm_postInstall() {
-  _relatedpermissions_civix_civicrm_postInstall();
-}
-
-/**
- * Implements hook_civicrm_uninstall().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_uninstall
- */
-function relatedpermissions_civicrm_uninstall() {
-  _relatedpermissions_civix_civicrm_uninstall();
-}
-
-/**
  * Implements hook_civicrm_enable().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
 function relatedpermissions_civicrm_enable() {
   _relatedpermissions_civix_civicrm_enable();
-}
-
-/**
- * Implements hook_civicrm_disable().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_disable
- */
-function relatedpermissions_civicrm_disable() {
-  _relatedpermissions_civix_civicrm_disable();
-}
-
-/**
- * Implements hook_civicrm_upgrade().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_upgrade
- */
-function relatedpermissions_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
-  return _relatedpermissions_civix_civicrm_upgrade($op, $queue);
-}
-
-/**
- * Implements hook_civicrm_entityTypes().
- *
- * Declare entity types provided by this module.
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_entityTypes
- */
-function relatedpermissions_civicrm_entityTypes(&$entityTypes) {
-  _relatedpermissions_civix_civicrm_entityTypes($entityTypes);
 }
 
 // Related Perms stuff
