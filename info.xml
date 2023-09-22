@@ -22,13 +22,14 @@
  This version also allows relationship types to be forced to being permissioned (via the relationship config screen) </comments>
   <civix>
     <namespace>CRM/Relatedpermissions</namespace>
-    <format>23.02.0</format>
+    <format>23.02.1</format>
   </civix>
   <mixins>
     <mixin>mgd-php@1.0.0</mixin>
   </mixins>
   <classloader>
     <psr0 prefix="CRM_" path="."/>
+    <psr4 prefix="Civi\" path="Civi"/>
   </classloader>
   <upgrader>CRM_Relatedpermissions_Upgrader</upgrader>
 </extension>
