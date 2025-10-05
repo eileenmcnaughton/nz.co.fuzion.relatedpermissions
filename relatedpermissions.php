@@ -224,10 +224,10 @@ function relatedpermissions_civicrm_pre($op, $entity, $objectID, &$entityArray) 
   }
   $relationshipType = explode('_', $entityArray['relationship_type_id']);
   // dpm($entityArray, "entity array");
-  $permissionSettings = CRM_Relatedpermissions_Utils_Relatedpermissions::getSettings($relationshipType[0]);
+  $permissionSettings = CRM_Relatedpermissions_Utils_Relatedpermissions::getSettings($relationshipType[0]) ?? [];
   foreach (['a_b', 'b_a'] as $direction) {
     // check mode & value....
-    if ($permissionSettings['permission_' . $direction . '_mode']) {
+    if (isset($permissionSettings['permission_' . $direction . '_mode']) && $permissionSettings['permission_' . $direction . '_mode']) {
       if ($permissionSettings['permission_' . $direction] != '') {
         // enforce
         $entityArray['is_permission_' . $direction] = $permissionSettings['permission_' . $direction];
