@@ -21,7 +21,7 @@ class CRM_Relatedpermissions_Utils_Relatedpermissions {
       \Civi::$statics[__CLASS__]['permission_settings'] = $permissionSettings;
     }
     if ($relationshipType) {
-      return CRM_Utils_Array::value($relationshipType, \Civi::$statics[__CLASS__]['permission_settings']);
+      return \Civi::$statics[__CLASS__]['permission_settings'][$relationshipType] ?? NULL;
     }
     else {
       return \Civi::$statics[__CLASS__]['permission_settings'];
