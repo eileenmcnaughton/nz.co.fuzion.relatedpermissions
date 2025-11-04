@@ -23,7 +23,7 @@ function _civicrm_api3_relationship_getsettings_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_relationship_getsettings($params) {
-  $type = CRM_Utils_Array::value('relationship_type_id', $params);
+  $type = $params['relationship_type_id'] ?? NULL;
   if ($type) {
     // Allow rel to have a_b part
     $bits = explode("_", $type);
