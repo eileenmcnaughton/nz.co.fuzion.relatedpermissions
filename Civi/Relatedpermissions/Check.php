@@ -212,6 +212,10 @@ class Check extends AutoSubscriber {
       return;
     }
 
+    if ($apiRequest->getEntityName() !== 'Contact') {
+      return;
+    }
+
     $loggedInContactID = \CRM_Core_Session::getLoggedInContactID();
     if (!\CRM_Core_Permission::check('edit all contacts') && $loggedInContactID) {
       $this->buildPermissions($apiRequest->getActionName(), $loggedInContactID);
