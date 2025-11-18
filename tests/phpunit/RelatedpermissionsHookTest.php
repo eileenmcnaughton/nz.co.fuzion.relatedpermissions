@@ -36,7 +36,7 @@ class RelatedpermissionsHookTest extends \PHPUnit\Framework\TestCase implements 
       ->apply();
   }
 
-  public function setUp() {
+  public function setUp(): void {
     $customFields = CRM_Relatedpermissions_Utils_Relatedpermissions::getPermissionFields();
     $params = [
       'name_a_b' => 'Relation 1 for create',
@@ -55,7 +55,7 @@ class RelatedpermissionsHookTest extends \PHPUnit\Framework\TestCase implements 
     parent::setUp();
   }
 
-  public function tearDown() {
+  public function tearDown(): void {
     $this->callAPISuccess('RelationshipType', 'delete', ['id' => $this->relationshipTypeID]);
     parent::tearDown();
   }

@@ -16,16 +16,17 @@
   <version>1.9.2</version>
   <develStage>stable</develStage>
   <compatibility>
-    <ver>5.49</ver>
+    <ver>6.4</ver>
   </compatibility>
   <comments>This extension makes the permission flag on a relationship work as a true ACL. In core CiviCRM that flag only allows the user to see the contact dashboard. However, in many cases it is a useful mechanism to give people permission to view contact records and search for contacts.
  This version also allows relationship types to be forced to being permissioned (via the relationship config screen) </comments>
   <civix>
     <namespace>CRM/Relatedpermissions</namespace>
-    <format>25.01.1</format>
+    <format>25.10.1</format>
   </civix>
   <mixins>
     <mixin>mgd-php@1.0.0</mixin>
+    <mixin>scan-classes@1.0.0</mixin>
   </mixins>
   <classloader>
     <psr0 prefix="CRM_" path="."/>
