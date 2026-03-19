@@ -6,6 +6,7 @@
   <urls>
     <url desc="Main Extension Page">https://civicrm.org/extensions/relationship-permissions-acls</url>
     <url desc="Licensing">https://civicrm.org/licensing</url>
+    <url desc="Documentation">https://github.com/eileenmcnaughton/nz.co.fuzion.relatedpermissions/blob/master/README.md</url>
   </urls>
   <license>AGPL</license>
   <maintainer>
@@ -22,10 +23,10 @@
  This version also allows relationship types to be forced to being permissioned (via the relationship config screen) </comments>
   <civix>
     <namespace>CRM/Relatedpermissions</namespace>
-    <format>25.10.1</format>
+    <format>25.10.2</format>
   </civix>
   <mixins>
-    <mixin>mgd-php@1.0.0</mixin>
+    <mixin>mgd-php@2.0.0</mixin>
     <mixin>scan-classes@1.0.0</mixin>
   </mixins>
   <classloader>

@@ -89,6 +89,7 @@ class CRM_Relatedpermissions_ExtensionUtil {
 
 use CRM_Relatedpermissions_ExtensionUtil as E;
 
+pathload()->addSearchDir(__DIR__ . '/mixin/lib');
 spl_autoload_register('_relatedpermissions_civix_class_loader', TRUE, TRUE);
 
 function _relatedpermissions_civix_class_loader($class) {
