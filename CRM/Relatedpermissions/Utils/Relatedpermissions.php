@@ -13,7 +13,7 @@ class CRM_Relatedpermissions_Utils_Relatedpermissions {
       $permissionSettings = [];
       foreach ($res['values'] as $relType) {
         foreach ($relType as $key => $value) {
-          if (CRM_Utils_Array::value($key, $fields)) {
+          if ($fields[$key] ?? NULL) {
             $permissionSettings[$relType['id']][$fields[$key]['name']] = $value;
           }
         }

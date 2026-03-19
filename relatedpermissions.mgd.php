@@ -9,7 +9,7 @@ return [
   0 => [
     'name' => 'Cron:Relationship.prune_temp_tables',
     'entity' => 'Job',
-    'update' => 'never',
+    'update' => 'unmodified',
     'params' => [
       'version' => 3,
       'name' => 'Drop temporary relationship ACL tables',

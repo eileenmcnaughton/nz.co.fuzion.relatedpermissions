@@ -26,8 +26,7 @@ function civicrm_api3_relationship_prune_temp_tables($params) {
     $dao = CRM_Core_DAO::executeQuery(
       "SELECT TABLE_NAME
        FROM information_schema.TABLES
-       WHERE TABLE_SCHEMA = '" . CRM_Core_DAO::getDatabaseName() . "'
-     ");
+       WHERE TABLE_SCHEMA = DATABASE()");
 
     while ($dao->fetch()) {
       $tables[] = $dao->TABLE_NAME;
@@ -36,7 +35,7 @@ function civicrm_api3_relationship_prune_temp_tables($params) {
     if (!empty($tables)) {
       foreach ($tables as $table_name) {
         if (strpos($table_name, 'myrelationships') === 0 || strpos($table_name, 'mysecondaryrelationships') === 0) {
-          $dao = CRM_Core_DAO::executeQuery("DROP TABLE IF EXISTS $table_name");
+          CRM_Core_DAO::executeQuery("DROP TABLE IF EXISTS $table_name");
         }
       }
     }

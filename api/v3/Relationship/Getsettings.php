@@ -9,7 +9,6 @@
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
 function _civicrm_api3_relationship_getsettings_spec(&$spec) {
-  // $spec['magicword']['api.required'] = 1;
   $spec['relationship_type_id']['api.required'] = 1;
 }
 

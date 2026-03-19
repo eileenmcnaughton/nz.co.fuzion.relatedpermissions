@@ -109,9 +109,9 @@ class CRM_Relatedpermissions_Upgrader extends CRM_Extension_Upgrader_Base {
    */
   private function getPermissionedRelationshipOptions() {
     return [
-      CRM_Contact_BAO_Relationship::NONE => ts('None'),
-      CRM_Contact_BAO_Relationship::VIEW => ts('View only'),
-      CRM_Contact_BAO_Relationship::EDIT => ts('View and update')
+      CRM_Contact_BAO_Relationship::NONE => E::ts('None'),
+      CRM_Contact_BAO_Relationship::VIEW => E::ts('View only'),
+      CRM_Contact_BAO_Relationship::EDIT => E::ts('View and update')
     ];
   }
 
