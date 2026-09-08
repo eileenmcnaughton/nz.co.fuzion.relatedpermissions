@@ -80,6 +80,40 @@ class ApiAuthorizeTest extends PermissionsTestBase {
   }
 
   /**
+   * A create carries no id, so there is nothing for these hooks to look up.
+   * The user's only contact access comes from the relationships, so if the
+   * hooks do try to look something up this is where it shows.
+   */
+  public function testCreateIsLeftToTheAddContactsPermission(): void {
+    $user = $this->createUserWithInheritedPermissionOver($this->individualCreate(), self::EDIT);
+    $this->logIn($user);
+    \CRM_Core_Config::singleton()->userPermissionClass->permissions[] = 'add contacts';
+
+    $created = Contact::create(TRUE)
+      ->addValue('contact_type', 'Individual')
+      ->addValue('last_name', 'Created')
+      ->execute()
+      ->single()['id'];
+
+    $this->assertNotEmpty($created);
+  }
+
+  /**
+   * The other way to reach the hooks without an id. Kept separate from the
+   * create case so that narrowing the guard to the action name is caught.
+   */
+  public function testCheckAccessRefusesAnUnidentifiedRecord(): void {
+    $user = $this->createUserWithInheritedPermissionOver($this->individualCreate(), self::EDIT);
+    $this->logIn($user);
+
+    $this->assertFalse(Contact::checkAccess()
+      ->setAction('update')
+      ->setValues(['first_name' => 'Nobody'])
+      ->execute()
+      ->single()['access']);
+  }
+
+  /**
    * user -> organisation -> target, both hops carrying $permission.
    *
    * The relationships have to exist before the contact logs in: the

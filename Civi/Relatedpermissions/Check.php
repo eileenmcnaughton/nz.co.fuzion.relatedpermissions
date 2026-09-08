@@ -211,6 +211,14 @@ class Check extends AutoSubscriber {
       return;
     }
 
+    // A related permission presumes an existing contact, so a record with no id
+    // -- a create, or a checkAccess probe -- has nothing to look up here. Core
+    // has already ruled on it by this point: it gates create on 'add contacts'
+    // and denies anything else it cannot identify.
+    if (empty($event->getRecord()['id'])) {
+      return;
+    }
+
     $loggedInContactID = \CRM_Core_Session::getLoggedInContactID();
     if (!\CRM_Core_Permission::check('edit all contacts') && $loggedInContactID) {
       $this->buildPermissions($apiRequest->getActionName(), $loggedInContactID);
@@ -270,7 +278,6 @@ class Check extends AutoSubscriber {
 
   private function buildPermissions(string $actionName, int $loggedInContactID) {
     switch ($actionName) {
-      case 'create':
       case 'update':
       case 'save':
         $permissionType = \CRM_Core_Permission::EDIT;
