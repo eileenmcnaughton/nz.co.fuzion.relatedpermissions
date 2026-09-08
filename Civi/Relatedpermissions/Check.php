@@ -36,7 +36,11 @@ class Check extends AutoSubscriber {
   private function buildPermissionsTable(int $contactID, int $type) {
     static $tempTables = [];
     if (!empty($tempTables[$contactID][$type])) {
-      return $tempTables[$contactID][$type]['permissioned_contacts'];
+      // The callers read $this->tmpTableName rather than the return value, so
+      // it has to be re-pointed at the cached table: the last one built may
+      // belong to another contact, or to the other permission type.
+      $this->tmpTableName = $tempTables[$contactID][$type]['permissioned_contacts'];
+      return $this->tmpTableName;
     }
     else {
       $sql = "`contact_id` INT(10) NOT NULL, PRIMARY KEY (`contact_id`)";
