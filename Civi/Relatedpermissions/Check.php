@@ -133,7 +133,7 @@ class Check extends AutoSubscriber {
     SELECT DISTINCT contact_id_b, contact_b.contact_type
     FROM $this->tmpTableName tmp
     LEFT JOIN civicrm_relationship r  ON tmp.contact_id = r.contact_id_a
-    INNER JOIN civicrm_contact c ON c.id = r.contact_id_a AND c.contact_type IN ('Household', 'Organization')
+    INNER JOIN civicrm_contact c ON c.id = r.contact_id_a
     INNER JOIN civicrm_contact contact_b ON contact_b.id = r.contact_id_b
     WHERE
     r.is_active = 1
@@ -149,7 +149,7 @@ class Check extends AutoSubscriber {
     SELECT contact_id_a, contact_b.contact_type
     FROM $this->tmpTableName tmp
     LEFT JOIN civicrm_relationship r ON tmp.contact_id = r.contact_id_b
-    INNER JOIN civicrm_contact c ON c.id = r.contact_id_b AND c.contact_type IN ('Household', 'Organization')
+    INNER JOIN civicrm_contact c ON c.id = r.contact_id_b
     INNER JOIN civicrm_contact contact_b ON contact_b.id = r.contact_id_b
     WHERE
     r.is_active = 1
