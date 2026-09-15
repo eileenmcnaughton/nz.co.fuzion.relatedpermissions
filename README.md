@@ -10,6 +10,22 @@ Contacts also get 'transitive permissions' - if you give, for example, a secreta
 
 - Second degree permissions. (If the second degree permissions is checked then on admin/misc screen). For example if you have a organisation called 'Chapter' and it has a permissioned relationship over an organisation called 'branch' then anyone with a permissioned relationship over the chapter will have permissions to access anyone the branch has a permissioned relationship over. There is no theoretical limit to the number of relationshipsbut only organisations and households pass on their permissions. This is because you cannot login as an organisation / household so there is no other purpose served by a household having permission over someone. However, individuals may throw up some more nuances - so for now they are excluded.
 
+- Integrates with Searchkit and FormBuilder permissions to allow/disallow modifications based on Relationship permissions configured.
+- Allows viewing and modification of `Email, Relationship, Contact, Household, and Organization`
+- It does not allow the creation of entities based on Relationships.
+
+
+## Custom Permissioning
+
+_Please note:_ If you are adding additional permissioning that is based on Relationships you will need to create a custom extension that potentially integrates elements below. The main reason being is that outright this respects the Relationship rules setup in the extension.
+
++ [hook_civicrm_aclWhereClause](https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_aclWhereClause/)
++ [civi.api.authorize](https://docs.civicrm.org/dev/en/latest/security/permissions/)
++ [civi.api4.authorizeRecord](https://docs.civicrm.org/dev/en/latest/hooks/civi.api4.authorizeRecord/)
+
 ## Outcomes
 
-When extension is enabled, on any Relationship Type you should now see a new field saying Always Permission A to B (and vv). And at civicrm/admin/setting/misc?reset=1 you should see an option for 'Allow second-degree relationship permissions'
++ When extension is enabled, on any Relationship Type you should now see a new fields saying Always Permission A to B (and vice versa).
++ On `civicrm/admin/setting/misc?reset=1` you should see an option for `Allow second-degree relationship permissions`
+
+[!example-relationship.png](images/example-relationship.png)
