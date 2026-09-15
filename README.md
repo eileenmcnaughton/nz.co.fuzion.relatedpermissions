@@ -28,4 +28,4 @@ _Please note:_ If you are adding additional permissioning that is based on Relat
 + When extension is enabled, on any Relationship Type you should now see a new fields saying Always Permission A to B (and vice versa).
 + On `civicrm/admin/setting/misc?reset=1` you should see an option for `Allow second-degree relationship permissions`
 
-[!example-relationship.png](images/example-relationship.png)
+![Example Relationship](images/example-relationship.png)
